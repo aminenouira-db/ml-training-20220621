@@ -82,6 +82,7 @@ telco_ps_df['Churn'].value_counts().plot.pie()   # To generate a bar plot
 ps.sql("""SELECT churn, SeniorCitizen, COUNT(*) AS num_customer_per_seniority 
   FROM {telco_ps_df} GROUP BY SeniorCitizen, churn""", telco_ps_df=telco_ps_df).pivot(index="churn", columns="SeniorCitizen", values="num_customer_per_seniority").plot.bar()
 
+
 # COMMAND ----------
 
 # MAGIC %md

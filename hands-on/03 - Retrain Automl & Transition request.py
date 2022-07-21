@@ -44,6 +44,7 @@ from mlflow.tracking.client import MlflowClient
 client = MlflowClient()
 
 run_id = model.best_trial.mlflow_run_id
+
 model_name = "mltraining_customer_churn" + re.sub(r'\W+', '_', current_user)
 model_uri = f"runs:/{run_id}/model"
 
