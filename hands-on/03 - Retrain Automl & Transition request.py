@@ -13,7 +13,10 @@
 
 # COMMAND ----------
 
-dbName = "mltraining20220621"
+# For multiple users working is the same workspace, we'd create a different database to store the feature store
+import re
+current_user = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
+dbName = "delta_" + re.sub(r'\W+', '_', current_user)
 
 # COMMAND ----------
 
@@ -41,7 +44,8 @@ from mlflow.tracking.client import MlflowClient
 client = MlflowClient()
 
 run_id = model.best_trial.mlflow_run_id
-model_name = "mltraining_customer_churn"
+
+model_name = "mltraining_customer_churn" + re.sub(r'\W+', '_', current_user)
 model_uri = f"runs:/{run_id}/model"
 
 client.set_tag(run_id, key='db_table', value=f'{dbName}.telco_churn_features')
