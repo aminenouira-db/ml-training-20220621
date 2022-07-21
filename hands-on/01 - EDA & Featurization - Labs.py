@@ -12,12 +12,21 @@
 # COMMAND ----------
 
 # DBTITLE 1,Define variable & database
+# For multiple users working is the same workspace, we'd create a different database to store the feature store
+import re
+current_user = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
+dbName = "delta_" + re.sub(r'\W+', '_', current_user)
 # We assume the notebook 00-Get Data was executed successfully ( upload data and create delta table)
-dbName = "mltraining20220621"
 telco_churn_table ="telco_churn"
 telco_churn_dataset = "/FileStore/mltraining20220621/churn_data/"
-model_name = "customer_churn_mltwfs"
+model_name = "customer_churn_mltwfs_" + re.sub(r'\W+', '_', current_user)
+spark.sql(f"""CREATE DATABASE IF NOT EXISTS {dbName}""")
 spark.sql(f"""USE {dbName}""")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC CREATE TABLE IF NOT EXISTS telco_churn SHALLOW CLONE mltraining20220621.telco_churn
 
 # COMMAND ----------
 
@@ -76,7 +85,7 @@ display(telco_ps_df)
 # COMMAND ----------
 
 ps.sql("""SELECT churn, SeniorCitizen, COUNT(*) AS num_customer_per_seniority 
-  FROM {telco_ps_df} GROUP BY SeniorCitizen, churn""").pivot(index="churn", columns="SeniorCitizen", values="num_customer_per_seniority").plot.bar()
+  FROM {telco_ps_df} GROUP BY SeniorCitizen, churn""", telco_ps_df=telco_ps_df).pivot(index="churn", columns="SeniorCitizen", values="num_customer_per_seniority").plot.bar()
 
 # COMMAND ----------
 
@@ -184,6 +193,12 @@ features_table = fs.create_table(
   primary_keys=['customerID'],
   df=telco_df,
   description='Telco churn features')
+
+# COMMAND ----------
+
+# Drop feature table if it exists
+# fs.drop_table(name=f'{dbName}.telco_churn_features'),
+help(fs.drop_table)
 
 # COMMAND ----------
 
