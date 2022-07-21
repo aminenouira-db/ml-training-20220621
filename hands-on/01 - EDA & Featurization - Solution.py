@@ -12,6 +12,7 @@
 # COMMAND ----------
 
 # DBTITLE 1,Define variable & database
+
 # For multiple users working is the same workspace, we'd create a different database to store the feature store
 import re
 current_user = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
@@ -29,6 +30,7 @@ spark.sql(f"""USE {dbName}""")
 # MAGIC CREATE TABLE IF NOT EXISTS telco_churn SHALLOW CLONE mltraining20220621.telco_churn
 
 # COMMAND ----------
+
 
 # MAGIC %md
 # MAGIC ## Exploratory Data Analysis
@@ -81,7 +83,6 @@ telco_ps_df['Churn'].value_counts().plot.pie()   # To generate a bar plot
 
 ps.sql("""SELECT churn, SeniorCitizen, COUNT(*) AS num_customer_per_seniority 
   FROM {telco_ps_df} GROUP BY SeniorCitizen, churn""", telco_ps_df=telco_ps_df).pivot(index="churn", columns="SeniorCitizen", values="num_customer_per_seniority").plot.bar()
-
 # COMMAND ----------
 
 # MAGIC %md
